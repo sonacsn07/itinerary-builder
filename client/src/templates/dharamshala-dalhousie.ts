@@ -60,7 +60,7 @@ export const dharamshalaDalhousieTemplate = {
     },
     {
       dayNumber: 3,
-      title: "Dharamshala → Dalhousie (120 KMS / 5-6 HRS)",
+      title: "Dharamshala to Dalhousie (120 KMS / 5-6 HRS)",
       date: "2026-04-29",
       mealsIncluded: "Breakfast, Dinner",
       accommodation: "DLS Nature Trinket Regency – Luxury Cottage with Balcony (Double), MAP",
@@ -86,13 +86,13 @@ export const dharamshalaDalhousieTemplate = {
     },
     {
       dayNumber: 5,
-      title: "Dalhousie → Chandigarh (260 KMS / 5-6 HRS)",
+      title: "Dalhousie to Chandigarh (260 KMS / 5-6 HRS)",
       date: "2026-05-01",
       mealsIncluded: "Breakfast",
       accommodation: "",
       activities: [
         { time: "Morning", description: "Breakfast and check out from hotel" },
-        { time: "Day", description: "Drive to Chandigarh Railway Station for drop" },
+        { time: "Day", description: "Drive to Chandigarh Railway Station for drop off" },
       ],
     },
   ],
