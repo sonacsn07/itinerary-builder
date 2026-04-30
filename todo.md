@@ -51,3 +51,5 @@
 - [x] Fixed Terms and Conditions section - added validation feedback with toast notifications
 
 - [x] Fixed loading toast not disappearing after PDF generation - now properly dismisses the loading toast before showing success message
+
+- [x] Removed publish link from PDF footer - now displays company name and page number only
