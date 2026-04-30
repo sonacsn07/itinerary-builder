@@ -55,3 +55,5 @@
 - [x] Removed publish link from PDF footer - now displays company name and page number only
 
 - [x] Removed buildHTMLEnd footer function from PDF generator - PDFs now have no footer
+
+- [x] Added footer to PDF with company name, website, email, and phone number
