@@ -63,6 +63,7 @@ export default function Home() {
     customSections: [] as CustomSection[],
     emergencyContacts: [] as EmergencyContact[],
     termsAndConditions: [] as TermAndCondition[],
+    customFields: [] as { label: string; value: string }[],
   });
 
   const [newInclusion, setNewInclusion] = useState("");
@@ -70,6 +71,7 @@ export default function Home() {
   const [newCustomSection, setNewCustomSection] = useState({ title: "", content: "" });
   const [newTerm, setNewTerm] = useState({ policyTitle: "", policyContent: "" });
   const [newContact, setNewContact] = useState({ contactName: "", phone: "", email: "" });
+  const [newCustomField, setNewCustomField] = useState({ label: "", value: "" });
 
   if (!isAuthenticated) {
     return (
@@ -186,6 +188,17 @@ export default function Home() {
     setFormData({ ...formData, emergencyContacts: formData.emergencyContacts.filter((_, i) => i !== index) });
   };
 
+  const addCustomField = () => {
+    if (newCustomField.label.trim() && newCustomField.value.trim()) {
+      setFormData({ ...formData, customFields: [...formData.customFields, newCustomField] });
+      setNewCustomField({ label: "", value: "" });
+    }
+  };
+
+  const removeCustomField = (index: number) => {
+    setFormData({ ...formData, customFields: formData.customFields.filter((_, i) => i !== index) });
+  };
+
   const handleGeneratePDF = async () => {
     let loadingToastId: string | number | undefined;
     try {
@@ -208,6 +221,7 @@ export default function Home() {
         emergencyContacts: formData.emergencyContacts,
         customSections: formData.customSections,
         termsAndConditions: formData.termsAndConditions,
+        customFields: formData.customFields,
       });
 
       if (result.success && result.html) {
@@ -294,6 +308,28 @@ export default function Home() {
                 <div>
                   <Label className="mb-2">Company Website</Label>
                   <Input value={formData.companyWebsite} onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })} />
+                </div>
+              </div>
+
+              {/* Custom Fields */}
+              <div className="col-span-2 border-t pt-4 mt-2">
+                <Label className="mb-2 block font-semibold">Custom Fields</Label>
+                <div className="space-y-2 mb-3">
+                  {formData.customFields.map((field, index) => (
+                    <Card key={index} className="p-2 bg-indigo-50 flex justify-between items-center">
+                      <span className="text-sm"><strong>{field.label}:</strong> {field.value}</span>
+                      <Button variant="ghost" size="sm" onClick={() => removeCustomField(index)}>
+                        <Trash2 size={14} />
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input placeholder="Label (e.g. Tour Guide)" value={newCustomField.label} onChange={(e) => setNewCustomField({ ...newCustomField, label: e.target.value })} />
+                  <Input placeholder="Value (e.g. Jane Smith)" value={newCustomField.value} onChange={(e) => setNewCustomField({ ...newCustomField, value: e.target.value })} />
+                  <Button onClick={addCustomField} variant="outline" className="gap-1 shrink-0">
+                    <Plus size={16} /> Add
+                  </Button>
                 </div>
               </div>
             </Card>

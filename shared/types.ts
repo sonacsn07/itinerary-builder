@@ -38,6 +38,14 @@ export interface ItineraryFormData {
 
   // Terms and Conditions
   termsAndConditions: TermAndConditionFormData[];
+
+  // Custom Tour Detail Fields (appear in the meta-table)
+  customFields: CustomFieldFormData[];
+}
+
+export interface CustomFieldFormData {
+  label: string;
+  value: string;
 }
 
 export interface DayFormData {

@@ -10,7 +10,7 @@ function generateItineraryHTML(data: ItineraryFormData): string {
   const inclusionsHtml = data.inclusions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const exclusionsHtml = data.exclusions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const contactsHtml = data.emergencyContacts.map((contact) => `<tr><td>${escapeHtml(contact.contactName)}</td><td>${escapeHtml(contact.phone)}</td><td>${escapeHtml(contact.email || "")}</td></tr>`).join("");
-  const customSectionsHtml = data.customSections.map((section) => `<div class="custom-section"><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.content)}</p></div>`).join("");
+  const customSectionsHtml = data.customSections.map((section) => `<div class="custom-section"><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.content).replace(/\n/g, "<br>")}</p></div>`).join("");
   const termsHtml = data.termsAndConditions.map((term) => `<div class="term-block"><h3>${escapeHtml(term.policyTitle)}</h3><p>${escapeHtml(term.policyContent)}</p></div>`).join("");
 
   let html = buildHTMLStart(data);
@@ -71,7 +71,22 @@ function buildHTMLStart(data: ItineraryFormData): string {
   html += "<div class=\"page-title\">Travel Itinerary</div>";
   html += "<div class=\"tour-title\">" + escapeHtml(data.tourTitle) + "</div>";
   html += "</header><table class=\"meta-table\"><tr><td><strong>Destination:</strong></td><td>" + escapeHtml(data.destination) + "</td><td><strong>Duration:</strong></td><td>" + calculateDays(data.startDate, data.endDate) + " Days</td></tr>";
-  html += "<tr><td><strong>Client Name:</strong></td><td>" + escapeHtml(data.clientName) + "</td><td><strong>Booking Reference:</strong></td><td>" + escapeHtml(data.bookingReference) + "</td></tr></table>";
+  html += "<tr><td><strong>Client Name:</strong></td><td>" + escapeHtml(data.clientName) + "</td><td><strong>Booking Reference:</strong></td><td>" + escapeHtml(data.bookingReference) + "</td></tr>";
+  // Custom fields: render two per row to match the 4-column layout
+  if (data.customFields && data.customFields.length > 0) {
+    for (let i = 0; i < data.customFields.length; i += 2) {
+      const f1 = data.customFields[i];
+      const f2 = data.customFields[i + 1];
+      html += "<tr><td><strong>" + escapeHtml(f1.label) + ":</strong></td><td>" + escapeHtml(f1.value) + "</td>";
+      if (f2) {
+        html += "<td><strong>" + escapeHtml(f2.label) + ":</strong></td><td>" + escapeHtml(f2.value) + "</td>";
+      } else {
+        html += "<td></td><td></td>";
+      }
+      html += "</tr>";
+    }
+  }
+  html += "</table>";
   html += "<section><h2>Welcome to Your Adventure!</h2><p class=\"welcome-text\">Dear " + escapeHtml(data.clientName) + ",</p>";
   html += "<p class=\"welcome-text\">Thank you for choosing <strong>" + escapeHtml(data.companyName) + "</strong> for your upcoming journey to <strong>" + escapeHtml(data.destination) + "</strong>. We are thrilled to have you on board!</p></section>";
   html += "<section><h2>Daily Itinerary</h2>";

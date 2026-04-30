@@ -20,6 +20,21 @@ export async function createContext(
     user = null;
   }
 
+  // Bypass for local dev if OAuth is not configured
+  if (!user && process.env.NODE_ENV === "development" && !process.env.OAUTH_SERVER_URL) {
+    user = {
+      id: 1,
+      openId: "dev-user-mock-123",
+      email: "dev@localhost",
+      name: "Local Dev User",
+      role: "admin",
+      loginMethod: "mock",
+      lastSignedIn: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
   return {
     req: opts.req,
     res: opts.res,

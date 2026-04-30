@@ -17,6 +17,7 @@ interface ItineraryPreviewProps {
   companyEmail: string;
   companyPhone: string;
   companyWebsite: string;
+  customFields: { label: string; value: string }[];
 }
 
 export function ItineraryPreview(props: ItineraryPreviewProps) {
@@ -64,6 +65,12 @@ export function ItineraryPreview(props: ItineraryPreviewProps) {
               <span className="font-semibold text-gray-700">Reference:</span>
               <p className="text-gray-600">{props.bookingReference}</p>
             </div>
+            {props.customFields.map((field, idx) => (
+              <div key={idx}>
+                <span className="font-semibold text-gray-700">{field.label}:</span>
+                <p className="text-gray-600">{field.value}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -150,7 +157,7 @@ export function ItineraryPreview(props: ItineraryPreviewProps) {
             {props.customSections.map((section, idx) => (
               <div key={idx} className="mb-4">
                 <h2 className="text-lg font-bold text-gray-900 mb-2">{section.title}</h2>
-                <p className="text-xs text-gray-700 leading-relaxed">{section.content}</p>
+                <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{section.content}</p>
               </div>
             ))}
           </div>
