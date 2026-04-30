@@ -1,7 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { z } from "zod";
+import { generateItineraryPDF } from "./pdf-generator";
+import { ItineraryFormData } from "../shared/types";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -17,12 +20,23 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  itinerary: router({
+    generatePDF: protectedProcedure
+      .input(z.any())
+      .mutation(async ({ input }) => {
+        try {
+          const data = input as ItineraryFormData;
+          const buffer = await generateItineraryPDF(data);
+          return {
+            success: true,
+            html: buffer.toString("utf-8"),
+          };
+        } catch (error) {
+          console.error("PDF generation error:", error);
+          throw new Error("Failed to generate PDF");
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
