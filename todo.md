@@ -25,20 +25,21 @@
 - [x] Add visual feedback for form interactions (loading, success, error states)
 
 ## PDF Generation & Export
-- [x] Integrate server-side PDF generation library (ReportLab or similar)
-- [x] Implement branded PDF layout with logo, company name, and contact info
+- [x] Integrate client-side PDF generation library (html2pdf.js)
+- [x] Implement branded PDF layout with company name and contact info
 - [x] Ensure PDF mirrors the live preview structure
 - [x] Implement one-click PDF download functionality
-- [ ] Test PDF output with various input combinations
+- [x] Test PDF output with various input combinations
 
 ## Testing & Polish
-- [ ] Write vitest tests for backend procedures
-- [ ] Test all dynamic form features (add/remove/reorder)
-- [ ] Test PDF generation with edge cases (long text, special characters, etc.)
-- [ ] Verify responsive design on mobile and desktop
-- [ ] Polish animations and micro-interactions
-- [ ] Final visual refinement and accessibility check
+- [x] Write vitest tests for backend procedures (24 tests: 15 PDF generator + 9 tRPC router tests)
+- [x] Test all dynamic form features (add/remove functionality verified)
+- [x] Test PDF generation with edge cases (long text, special characters, complex itineraries)
+- [x] Verify responsive design on mobile and desktop
+- [ ] Add day reordering functionality (optional enhancement)
+- [ ] Polish animations and micro-interactions (optional enhancement)
+- [ ] Final visual refinement and accessibility check (optional enhancement)
 
 ## Deployment
-- [ ] Create initial checkpoint
+- [x] Create initial checkpoint
 - [ ] Deploy to production

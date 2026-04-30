@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Download } from "lucide-react";
 import { getLoginUrl } from "@/const";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { ItineraryPreview } from "@/components/ItineraryPreview";
+import html2pdf from "html2pdf.js";
 
 interface Activity {
   time: string;
@@ -42,6 +44,7 @@ interface EmergencyContact {
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
+  const previewRef = useRef<HTMLDivElement>(null);
   const generatePDFMutation = trpc.itinerary.generatePDF.useMutation();
 
   const [formData, setFormData] = useState({
@@ -181,19 +184,26 @@ export default function Home() {
     setFormData({ ...formData, emergencyContacts: formData.emergencyContacts.filter((_, i) => i !== index) });
   };
 
-  const handleGeneratePDF = async () => {
+  const handleGeneratePDF = () => {
     try {
-      const result = await generatePDFMutation.mutateAsync(formData as any);
-      if (result.success) {
-        const blob = new Blob([result.html], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `itinerary-${formData.tourTitle.replace(/\s+/g, "-").toLowerCase()}.html`;
-        a.click();
-        toast.success("Itinerary PDF generated successfully!");
+      if (!previewRef.current) {
+        toast.error("Preview not available");
+        return;
       }
+
+      const element = previewRef.current.cloneNode(true) as HTMLElement;
+      const opt = {
+        margin: 10,
+        filename: `itinerary-${formData.tourTitle.replace(/\s+/g, "-").toLowerCase()}.pdf`,
+        image: { type: "png" as const, quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "portrait" as const, unit: "mm", format: "a4" },
+      };
+
+      html2pdf().set(opt).from(element).save();
+      toast.success("Itinerary PDF downloaded successfully!");
     } catch (error) {
+      console.error("PDF generation error:", error);
       toast.error("Failed to generate PDF");
     }
   };
@@ -427,29 +437,15 @@ export default function Home() {
 
           {/* Preview Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-6">
-              <h2 className="text-2xl font-bold mb-4">Preview</h2>
-              <div className="space-y-3 text-sm mb-6">
-                <div>
-                  <div className="font-semibold text-gray-900">{formData.companyName}</div>
-                  <div className="text-gray-600">{formData.tourTitle}</div>
-                </div>
-                <div className="border-t pt-3">
-                  <div className="text-gray-700"><strong>Destination:</strong> {formData.destination}</div>
-                  <div className="text-gray-700"><strong>Client:</strong> {formData.clientName}</div>
-                  <div className="text-gray-700"><strong>Days:</strong> {formData.days.length}</div>
-                </div>
-                <div className="border-t pt-3">
-                  <div className="text-gray-700"><strong>Inclusions:</strong> {formData.inclusions.length}</div>
-                  <div className="text-gray-700"><strong>Exclusions:</strong> {formData.exclusions.length}</div>
-                  <div className="text-gray-700"><strong>Contacts:</strong> {formData.emergencyContacts.length}</div>
-                </div>
+            <div className="sticky top-6 space-y-4">
+              <div ref={previewRef}>
+                <ItineraryPreview {...formData} />
               </div>
-              <Button onClick={handleGeneratePDF} disabled={generatePDFMutation.isPending} className="w-full gap-2 bg-blue-600 hover:bg-blue-700">
-                <Download size={18} />
-                {generatePDFMutation.isPending ? "Generating..." : "Generate PDF"}
+              <Button onClick={handleGeneratePDF} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 h-12 text-base">
+                <Download size={20} />
+                Download as PDF
               </Button>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
