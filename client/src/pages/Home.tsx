@@ -69,7 +69,7 @@ export default function Home() {
   const [newInclusion, setNewInclusion] = useState("");
   const [newExclusion, setNewExclusion] = useState("");
   const [newCustomSection, setNewCustomSection] = useState({ title: "", content: "" });
-  const [newTerm, setNewTerm] = useState({ policyTitle: "", policyContent: "" });
+  const [newTerm, setNewTerm] = useState({ policyContent: "" });
   const [newContact, setNewContact] = useState({ contactName: "", phone: "", email: "" });
   const [newCustomField, setNewCustomField] = useState({ label: "", value: "" });
 
@@ -164,12 +164,12 @@ export default function Home() {
   };
 
   const addTerm = () => {
-    if (newTerm.policyTitle.trim() && newTerm.policyContent.trim()) {
+    if (newTerm.policyContent.trim()) {
       setFormData({ ...formData, termsAndConditions: [...formData.termsAndConditions, newTerm] });
-      setNewTerm({ policyTitle: "", policyContent: "" });
+      setNewTerm({ policyContent: "" });
       toast.success("Term added successfully!");
     } else {
-      toast.error("Please fill in both policy title and content");
+      toast.error("Please fill in the policy content");
     }
   };
 
@@ -497,7 +497,6 @@ export default function Home() {
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Terms and Conditions</h2>
               <div className="space-y-3 mb-4">
-                <Input placeholder="Policy Title" value={newTerm.policyTitle} onChange={(e) => setNewTerm({ ...newTerm, policyTitle: e.target.value })} />
                 <Textarea placeholder="Policy Content" value={newTerm.policyContent} onChange={(e) => setNewTerm({ ...newTerm, policyContent: e.target.value })} />
                 <Button onClick={addTerm} className="gap-2">
                   <Plus size={16} /> Add Term
@@ -508,8 +507,7 @@ export default function Home() {
                   <Card key={index} className="p-3 bg-amber-50">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-semibold">{term.policyTitle}</h4>
-                        <p className="text-sm text-gray-600">{term.policyContent.substring(0, 100)}...</p>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap">{term.policyContent.substring(0, 150)}...</p>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => removeTerm(index)}>
                         <Trash2 size={16} />

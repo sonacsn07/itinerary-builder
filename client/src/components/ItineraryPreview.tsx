@@ -170,8 +170,7 @@ export function ItineraryPreview(props: ItineraryPreviewProps) {
             <div className="space-y-3">
               {props.termsAndConditions.map((term, idx) => (
                 <div key={idx}>
-                  <h3 className="font-semibold text-gray-900 text-sm">{term.policyTitle}</h3>
-                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">{term.policyContent}</p>
+                  <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{term.policyContent}</p>
                 </div>
               ))}
             </div>

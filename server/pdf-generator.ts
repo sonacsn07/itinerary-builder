@@ -11,7 +11,7 @@ function generateItineraryHTML(data: ItineraryFormData): string {
   const exclusionsHtml = data.exclusions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const contactsHtml = data.emergencyContacts.map((contact) => `<tr><td>${escapeHtml(contact.contactName)}</td><td>${escapeHtml(contact.phone)}</td><td>${escapeHtml(contact.email || "")}</td></tr>`).join("");
   const customSectionsHtml = data.customSections.map((section) => `<div class="custom-section"><h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.content).replace(/\n/g, "<br>")}</p></div>`).join("");
-  const termsHtml = data.termsAndConditions.map((term) => `<div class="term-block"><h3>${escapeHtml(term.policyTitle)}</h3><p>${escapeHtml(term.policyContent)}</p></div>`).join("");
+  const termsHtml = data.termsAndConditions.map((term) => `<div class="term-block"><p>${escapeHtml(term.policyContent).replace(/\n/g, "<br>")}</p></div>`).join("");
 
   let html = buildHTMLStart(data);
   html += daysHtml;

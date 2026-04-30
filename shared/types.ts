@@ -80,6 +80,6 @@ export interface EmergencyContactFormData {
 
 export interface TermAndConditionFormData {
   id?: number;
-  policyTitle: string;
+  policyTitle?: string;
   policyContent: string;
 }
