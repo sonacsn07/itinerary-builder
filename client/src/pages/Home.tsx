@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ItineraryPreview } from "@/components/ItineraryPreview";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { dharamshalaDalhousieTemplate } from "@/templates/dharamshala-dalhousie";
 
 interface Activity {
   time: string;
@@ -47,27 +48,12 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
   const generatePDFMutation = trpc.itinerary.generatePDF.useMutation();
 
-  const [formData, setFormData] = useState({
-    tourTitle: "European Grand Tour",
-    destination: "Europe",
-    clientName: "John Doe",
-    bookingReference: "DTG-2024-001",
-    createdDate: new Date().toISOString().split("T")[0],
-    startDate: "2024-06-01",
-    endDate: "2024-06-15",
-    days: [] as Day[],
-    inclusions: [] as string[],
-    exclusions: [] as string[],
-    customSections: [] as CustomSection[],
-    emergencyContacts: [] as EmergencyContact[],
-    termsAndConditions: [] as TermAndCondition[],
-    customFields: [] as { label: string; value: string }[],
-  });
+  const [formData, setFormData] = useState(dharamshalaDalhousieTemplate);
 
   const [newInclusion, setNewInclusion] = useState("");
   const [newExclusion, setNewExclusion] = useState("");
   const [newCustomSection, setNewCustomSection] = useState({ title: "", content: "" });
-  const [newTerm, setNewTerm] = useState({ policyContent: "" });
+  const [newTerm, setNewTerm] = useState({ policyTitle: "", policyContent: "" });
   const [newContact, setNewContact] = useState({ contactName: "", phone: "", email: "" });
   const [newCustomField, setNewCustomField] = useState({ label: "", value: "" });
 
@@ -189,7 +175,7 @@ export default function Home() {
   const addTerm = () => {
     if (newTerm.policyContent.trim()) {
       setFormData({ ...formData, termsAndConditions: [...formData.termsAndConditions, newTerm] });
-      setNewTerm({ policyContent: "" });
+      setNewTerm({ policyTitle: "", policyContent: "" });
       toast.success("Term added successfully!");
     } else {
       toast.error("Please fill in the policy content");
