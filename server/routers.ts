@@ -21,7 +21,7 @@ export const appRouter = router({
   }),
 
   itinerary: router({
-    generatePDF: protectedProcedure
+    generatePDF: publicProcedure
       .input(z.any())
       .mutation(async ({ input }) => {
         try {

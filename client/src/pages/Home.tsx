@@ -57,20 +57,6 @@ export default function Home() {
   const [newContact, setNewContact] = useState({ contactName: "", phone: "", email: "" });
   const [newCustomField, setNewCustomField] = useState({ label: "", value: "" });
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <Card className="w-full max-w-md p-8 shadow-xl">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Itinerary Builder</h1>
-          <p className="text-gray-600 mb-6">Create professional travel itineraries in minutes</p>
-          <Button className="w-full" onClick={() => (window.location.href = getLoginUrl())}>
-            Sign In to Get Started
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
   const addDay = () => {
     const newDay: Day = {
       dayNumber: formData.days.length + 1,
