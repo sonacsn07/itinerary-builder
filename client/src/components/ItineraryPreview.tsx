@@ -17,6 +17,7 @@ interface ItineraryPreviewProps {
   companyEmail: string;
   companyPhone: string;
   companyWebsite: string;
+  createdDate: string;
   customFields: { label: string; value: string }[];
 }
 
@@ -42,9 +43,26 @@ export function ItineraryPreview(props: ItineraryPreviewProps) {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="border-b pb-4">
-          <h1 className="text-2xl font-bold text-blue-900">{props.companyName}</h1>
-          <p className="text-lg font-semibold text-blue-600 mt-1">{props.tourTitle}</p>
+          <div className="flex items-center gap-4">
+            <img
+              src="/assets/logo/Desi To Global Logo.png"
+              alt="Company Logo"
+              className="h-[80px] w-auto object-contain flex-shrink-0"
+            />
+            <div>
+              <h1 className="text-2xl font-bold text-blue-900">{props.companyName}</h1>
+              <p className="text-sm text-blue-400 font-medium">Travel Itinerary</p>
+              <p className="text-lg font-semibold text-blue-600 mt-1">{props.tourTitle}</p>
+            </div>
+          </div>
         </div>
+
+        {/* Created Date */}
+        {props.createdDate && (
+          <p className="text-xs text-gray-500 italic">
+            Created on {formatDate(props.createdDate)}
+          </p>
+        )}
 
         {/* Metadata */}
         <div className="bg-blue-50 p-4 rounded-lg space-y-2 text-sm">
@@ -81,26 +99,39 @@ export function ItineraryPreview(props: ItineraryPreviewProps) {
             <div className="space-y-3">
               {props.days.map((day, idx) => (
                 <div key={idx} className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-600">
-                  <h3 className="font-semibold text-gray-900">
-                    Day {day.dayNumber}: {day.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {day.date && formatDate(day.date)} | Meals: {day.mealsIncluded}
-                  </p>
-                  {day.activities.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-xs text-gray-700">
-                      {day.activities.map((activity: any, aIdx: number) => (
-                        <li key={aIdx} className="ml-2">
-                          <strong>{activity.time}</strong> – {activity.description}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {day.accommodation && (
-                    <p className="text-xs text-blue-700 mt-2">
-                      <strong>Accommodation:</strong> {day.accommodation}
-                    </p>
-                  )}
+                  <div className={day.imageUrl ? "flex gap-3" : ""}>
+                    {day.imageUrl && (
+                      <div className="flex-shrink-0 w-[100px]">
+                        <img
+                          src={day.imageUrl}
+                          alt={`Day ${day.dayNumber}`}
+                          className="w-full h-[100px] object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900">
+                        Day {day.dayNumber}: {day.title}
+                      </h3>
+                      <p className="text-xs text-gray-600 mt-1">
+                        {day.date && formatDate(day.date)} | Meals: {day.mealsIncluded}
+                      </p>
+                      {day.activities.length > 0 && (
+                        <ul className="mt-2 space-y-1 text-xs text-gray-700">
+                          {day.activities.map((activity: any, aIdx: number) => (
+                            <li key={aIdx} className="ml-2">
+                              <strong>{activity.time}</strong> – {activity.description}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {day.accommodation && (
+                        <p className="text-xs text-blue-700 mt-2">
+                          <strong>Accommodation:</strong> {day.accommodation}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Download } from "lucide-react";
+import { Plus, Trash2, Download, ImagePlus, X } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
@@ -23,6 +23,7 @@ interface Day {
   mealsIncluded: string;
   activities: Activity[];
   accommodation: string;
+  imageUrl?: string;
 }
 
 interface CustomSection {
@@ -47,14 +48,15 @@ export default function Home() {
   const generatePDFMutation = trpc.itinerary.generatePDF.useMutation();
 
   const [formData, setFormData] = useState({
-    companyName: "Wanderlust Travels",
+    companyName: "Desi To Global Travel",
     tourTitle: "European Grand Tour",
     destination: "Europe",
     clientName: "John Doe",
-    bookingReference: "WL-2024-001",
-    companyEmail: "info@wanderlust.com",
-    companyPhone: "+1-800-TRAVEL",
-    companyWebsite: "www.wanderlust.com",
+    bookingReference: "DTG-2024-001",
+    companyEmail: "contact@desitoglobaltravel.com",
+    companyPhone: "+91-9650509356 | +91-9650435208",
+    companyWebsite: "www.desitoglobaltravel.com",
+    createdDate: new Date().toISOString().split("T")[0],
     startDate: "2024-06-01",
     endDate: "2024-06-15",
     days: [] as Day[],
@@ -95,8 +97,33 @@ export default function Home() {
       mealsIncluded: "",
       activities: [],
       accommodation: "",
+      imageUrl: undefined,
     };
     setFormData({ ...formData, days: [...formData.days, newDay] });
+  };
+
+  const handleDayImageUpload = (dayIndex: number, file: File) => {
+    if (!file.type.match(/^image\/(jpeg|png)$/)) {
+      toast.error("Only JPG and PNG images are allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const updatedDays = [...formData.days];
+      updatedDays[dayIndex] = { ...updatedDays[dayIndex], imageUrl: e.target?.result as string };
+      setFormData({ ...formData, days: updatedDays });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeDayImage = (dayIndex: number) => {
+    const updatedDays = [...formData.days];
+    updatedDays[dayIndex] = { ...updatedDays[dayIndex], imageUrl: undefined };
+    setFormData({ ...formData, days: updatedDays });
   };
 
   const removeDay = (index: number) => {
@@ -203,7 +230,23 @@ export default function Home() {
     let loadingToastId: string | number | undefined;
     try {
       loadingToastId = toast.loading("Generating PDF...");
-      
+
+      // Fetch the company logo and convert to base64 for PDF embedding
+      let companyLogoUrl: string | null = null;
+      try {
+        const logoResponse = await fetch("/assets/logo/Desi To Global Logo.png");
+        if (logoResponse.ok) {
+          const logoBlob = await logoResponse.blob();
+          companyLogoUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(logoBlob);
+          });
+        }
+      } catch {
+        // Logo fetch failed silently — PDF will be generated without logo
+      }
+
       const result = await generatePDFMutation.mutateAsync({
         companyName: formData.companyName,
         tourTitle: formData.tourTitle,
@@ -213,6 +256,8 @@ export default function Home() {
         companyEmail: formData.companyEmail,
         companyPhone: formData.companyPhone,
         companyWebsite: formData.companyWebsite,
+        companyLogoUrl,
+        createdDate: formData.createdDate,
         startDate: formData.startDate,
         endDate: formData.endDate,
         days: formData.days,
@@ -228,12 +273,12 @@ export default function Home() {
         toast.dismiss(loadingToastId);
         const blob = new Blob([result.html], { type: "text/html" });
         const url = window.URL.createObjectURL(blob);
-        
+
         const iframe = document.createElement("iframe");
         iframe.style.display = "none";
         iframe.src = url;
         document.body.appendChild(iframe);
-        
+
         iframe.onload = () => {
           setTimeout(() => {
             iframe.contentWindow?.print();
@@ -268,6 +313,10 @@ export default function Home() {
             {/* Tour Details */}
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Tour Details</h2>
+              <div className="mb-4">
+                <Label className="mb-2">Itinerary Created Date</Label>
+                <Input type="date" value={formData.createdDate} onChange={(e) => setFormData({ ...formData, createdDate: e.target.value })} className="max-w-xs" />
+              </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <Label className="mb-2">Company Name</Label>
@@ -387,6 +436,38 @@ export default function Home() {
                       <Button variant="ghost" size="sm" onClick={() => removeDay(dayIndex)} className="mt-6">
                         <Trash2 size={16} />
                       </Button>
+                    </div>
+
+                    {/* Day Image Upload */}
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <Label className="text-sm font-semibold mb-2 block">Day Image (JPG/PNG, max 5MB)</Label>
+                      {day.imageUrl ? (
+                        <div className="flex items-start gap-3">
+                          <img
+                            src={day.imageUrl}
+                            alt={`Day ${day.dayNumber}`}
+                            className="w-24 h-24 object-cover rounded-lg border border-blue-200"
+                          />
+                          <Button variant="ghost" size="sm" onClick={() => removeDayImage(dayIndex)} className="text-red-500 hover:text-red-700 gap-1">
+                            <X size={14} /> Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-2 cursor-pointer text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                          <ImagePlus size={18} />
+                          <span>Add photo</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleDayImageUpload(dayIndex, file);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      )}
                     </div>
                   </Card>
                 ))}

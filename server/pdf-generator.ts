@@ -28,10 +28,14 @@ function buildHTMLStart(data: ItineraryFormData): string {
   html += "* { margin: 0; padding: 0; box-sizing: border-box; }";
   html += "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2C3E50; line-height: 1.6; }";
   html += ".container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; }";
-  html += "header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #1A5276; padding-bottom: 20px; }";
-  html += ".company-name { font-size: 28px; font-weight: bold; color: #1A5276; margin-bottom: 10px; }";
-  html += ".page-title { font-size: 20px; color: #2E86C1; margin-bottom: 20px; }";
-  html += ".tour-title { font-size: 24px; font-weight: bold; color: #1A5276; margin-bottom: 20px; }";
+  html += "header { margin-bottom: 40px; border-bottom: 3px solid #1A5276; padding-bottom: 20px; }";
+  html += ".header-inner { display: flex; align-items: center; gap: 20px; }";
+  html += ".header-logo { flex-shrink: 0; }";
+  html += ".header-logo img { height: 100px; width: auto; object-fit: contain; }";
+  html += ".header-text { flex: 1; }";
+  html += ".company-name { font-size: 28px; font-weight: bold; color: #1A5276; margin-bottom: 4px; }";
+  html += ".page-title { font-size: 18px; color: #5DADE2; margin-bottom: 4px; }";
+  html += ".tour-title { font-size: 22px; font-weight: bold; color: #1A5276; }";
   html += ".meta-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #EBF5FB; }";
   html += ".meta-table td { padding: 12px; border: 1px solid #AED6F1; }";
   html += ".meta-table strong { color: #1A5276; }";
@@ -46,6 +50,10 @@ function buildHTMLStart(data: ItineraryFormData): string {
   html += ".activity { font-size: 13px; margin-bottom: 8px; padding-left: 15px; }";
   html += ".activity strong { color: #1A5276; min-width: 80px; display: inline-block; }";
   html += ".accommodation { font-size: 13px; margin-top: 10px; color: #2E86C1; font-weight: 500; }";
+  html += ".day-block-inner { display: flex; gap: 15px; }";
+  html += ".day-image { flex-shrink: 0; width: 160px; }";
+  html += ".day-image img { width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }";
+  html += ".day-content { flex: 1; min-width: 0; }";
   html += ".inclusions-exclusions { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }";
   html += ".inclusions-exclusions div { padding: 15px; background: #EBF5FB; border-radius: 4px; }";
   html += ".inclusions-exclusions h3 { font-size: 14px; color: #1A5276; margin-bottom: 10px; font-weight: bold; }";
@@ -66,11 +74,22 @@ function buildHTMLStart(data: ItineraryFormData): string {
   html += "@page { margin: 0.5in; size: A4; }";
   html += "@page { @bottom-left { content: none; } @bottom-right { content: none; } @top-left { content: none; } @top-right { content: none; } }";
   html += "@media print { body { margin: 0; padding: 0; } }";
+  html += ".created-date { font-size: 12px; color: #7F8C8D; font-style: italic; margin-bottom: 15px; }";
   html += "</style></head><body><div class=\"container\"><header>";
+  html += "<div class=\"header-inner\">";
+  if (data.companyLogoUrl) {
+    html += "<div class=\"header-logo\"><img src=\"" + data.companyLogoUrl + "\" alt=\"Company Logo\" /></div>";
+  }
+  html += "<div class=\"header-text\">";
   html += "<div class=\"company-name\">" + escapeHtml(data.companyName) + "</div>";
   html += "<div class=\"page-title\">Travel Itinerary</div>";
   html += "<div class=\"tour-title\">" + escapeHtml(data.tourTitle) + "</div>";
-  html += "</header><table class=\"meta-table\"><tr><td><strong>Destination:</strong></td><td>" + escapeHtml(data.destination) + "</td><td><strong>Duration:</strong></td><td>" + calculateDays(data.startDate, data.endDate) + " Days</td></tr>";
+  html += "</div></div>";
+  html += "</header>";
+  if ((data as any).createdDate) {
+    html += "<p class=\"created-date\">Created on " + formatDate(new Date((data as any).createdDate)) + "</p>";
+  }
+  html += "<table class=\"meta-table\"><tr><td><strong>Destination:</strong></td><td>" + escapeHtml(data.destination) + "</td><td><strong>Duration:</strong></td><td>" + calculateDays(data.startDate, data.endDate) + " Days</td></tr>";
   html += "<tr><td><strong>Client Name:</strong></td><td>" + escapeHtml(data.clientName) + "</td><td><strong>Booking Reference:</strong></td><td>" + escapeHtml(data.bookingReference) + "</td></tr>";
   // Custom fields: render two per row to match the 4-column layout
   if (data.customFields && data.customFields.length > 0) {
@@ -128,10 +147,23 @@ function buildHTMLEnd(data: ItineraryFormData): string {
 
 function renderDayBlock(day: any): string {
   const activitiesHtml = day.activities.map((activity: any) => `<p class="activity"><strong>${escapeHtml(activity.time)}</strong> ${escapeHtml(activity.description)}</p>`).join("");
-  let html = "<div class=\"day-block\"><div class=\"day-header\"><h3>Day " + day.dayNumber + ": " + escapeHtml(day.title) + "</h3>";
+  let html = "<div class=\"day-block\">";
+  
+  if (day.imageUrl) {
+    html += "<div class=\"day-block-inner\">";
+    html += "<div class=\"day-image\"><img src=\"" + day.imageUrl + "\" alt=\"Day " + day.dayNumber + "\" /></div>";
+    html += "<div class=\"day-content\">";
+  }
+
+  html += "<div class=\"day-header\"><h3>Day " + day.dayNumber + ": " + escapeHtml(day.title) + "</h3>";
   html += "<p class=\"day-meta\">Date: " + formatDate(day.date) + " | Meals: " + escapeHtml(day.mealsIncluded) + "</p></div>";
   html += "<div class=\"activities\">" + activitiesHtml + "</div>";
   if (day.accommodation) html += "<p class=\"accommodation\"><strong>Accommodation:</strong> " + escapeHtml(day.accommodation) + "</p>";
+
+  if (day.imageUrl) {
+    html += "</div></div>"; // close day-content and day-block-inner
+  }
+
   html += "</div>";
   return html;
 }

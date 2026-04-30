@@ -55,6 +55,7 @@ export interface DayFormData {
   date: Date;
   mealsIncluded: string;
   accommodation: string;
+  imageUrl?: string;
   activities: ActivityFormData[];
 }
 
