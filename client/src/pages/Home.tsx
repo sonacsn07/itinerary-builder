@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,7 @@ import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ItineraryPreview } from "@/components/ItineraryPreview";
-
+import { useAuth } from "@/_core/hooks/useAuth";
 
 interface Activity {
   time: string;
@@ -98,35 +97,35 @@ export default function Home() {
     setFormData({ ...formData, days: [...formData.days, newDay] });
   };
 
-  const updateDay = (index: number, updates: Partial<Day>) => {
-    const updatedDays = [...formData.days];
-    updatedDays[index] = { ...updatedDays[index], ...updates };
-    setFormData({ ...formData, days: updatedDays });
+  const removeDay = (index: number) => {
+    setFormData({ ...formData, days: formData.days.filter((_, i) => i !== index) });
   };
 
-  const addActivityToDay = (dayIndex: number) => {
+  const addActivity = (dayIndex: number) => {
     const updatedDays = [...formData.days];
     updatedDays[dayIndex].activities.push({ time: "", description: "" });
     setFormData({ ...formData, days: updatedDays });
   };
 
-  const updateActivity = (dayIndex: number, activityIndex: number, updates: Partial<Activity>) => {
+  const removeActivity = (dayIndex: number, activityIndex: number) => {
+    const updatedDays = [...formData.days];
+    updatedDays[dayIndex].activities = updatedDays[dayIndex].activities.filter((_, i) => i !== activityIndex);
+    setFormData({ ...formData, days: updatedDays });
+  };
+
+  const updateDay = (index: number, field: string, value: string) => {
+    const updatedDays = [...formData.days];
+    updatedDays[index] = { ...updatedDays[index], [field]: value };
+    setFormData({ ...formData, days: updatedDays });
+  };
+
+  const updateActivity = (dayIndex: number, activityIndex: number, field: string, value: string) => {
     const updatedDays = [...formData.days];
     updatedDays[dayIndex].activities[activityIndex] = {
       ...updatedDays[dayIndex].activities[activityIndex],
-      ...updates,
+      [field]: value,
     };
     setFormData({ ...formData, days: updatedDays });
-  };
-
-  const removeActivity = (dayIndex: number, activityIndex: number) => {
-    const updatedDays = [...formData.days];
-    updatedDays[dayIndex].activities.splice(activityIndex, 1);
-    setFormData({ ...formData, days: updatedDays });
-  };
-
-  const removeDay = (index: number) => {
-    setFormData({ ...formData, days: formData.days.filter((_, i) => i !== index) });
   };
 
   const addInclusion = () => {
@@ -188,8 +187,9 @@ export default function Home() {
   };
 
   const handleGeneratePDF = async () => {
+    let loadingToastId: string | number | undefined;
     try {
-      toast.loading("Generating PDF...");
+      loadingToastId = toast.loading("Generating PDF...");
       
       const result = await generatePDFMutation.mutateAsync({
         companyName: formData.companyName,
@@ -211,11 +211,10 @@ export default function Home() {
       });
 
       if (result.success && result.html) {
-        // Create a blob from the HTML
+        toast.dismiss(loadingToastId);
         const blob = new Blob([result.html], { type: "text/html" });
         const url = window.URL.createObjectURL(blob);
         
-        // Create a temporary iframe to print to PDF
         const iframe = document.createElement("iframe");
         iframe.style.display = "none";
         iframe.src = url;
@@ -232,10 +231,12 @@ export default function Home() {
           }, 250);
         };
       } else {
+        toast.dismiss(loadingToastId);
         toast.error("Failed to generate PDF");
       }
     } catch (error) {
       console.error("PDF generation error:", error);
+      toast.dismiss(loadingToastId);
       toast.error("Failed to generate PDF");
     }
   };
@@ -253,131 +254,148 @@ export default function Home() {
             {/* Tour Details */}
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Tour Details</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label>Company Name</Label>
+                  <Label className="mb-2">Company Name</Label>
                   <Input value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Tour Title</Label>
+                  <Label className="mb-2">Tour Title</Label>
                   <Input value={formData.tourTitle} onChange={(e) => setFormData({ ...formData, tourTitle: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Destination</Label>
+                  <Label className="mb-2">Destination</Label>
                   <Input value={formData.destination} onChange={(e) => setFormData({ ...formData, destination: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Client Name</Label>
+                  <Label className="mb-2">Client Name</Label>
                   <Input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Booking Reference</Label>
+                  <Label className="mb-2">Booking Reference</Label>
                   <Input value={formData.bookingReference} onChange={(e) => setFormData({ ...formData, bookingReference: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Start Date</Label>
+                  <Label className="mb-2">Start Date</Label>
                   <Input type="date" value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })} />
                 </div>
                 <div>
-                  <Label>End Date</Label>
+                  <Label className="mb-2">End Date</Label>
                   <Input type="date" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Company Email</Label>
+                  <Label className="mb-2">Company Email</Label>
                   <Input value={formData.companyEmail} onChange={(e) => setFormData({ ...formData, companyEmail: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Company Phone</Label>
+                  <Label className="mb-2">Company Phone</Label>
                   <Input value={formData.companyPhone} onChange={(e) => setFormData({ ...formData, companyPhone: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Company Website</Label>
+                  <Label className="mb-2">Company Website</Label>
                   <Input value={formData.companyWebsite} onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })} />
                 </div>
               </div>
             </Card>
 
-            {/* Days */}
+            {/* Daily Itinerary */}
             <Card className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Daily Itinerary</h2>
                 <Button onClick={addDay} className="gap-2">
-                  <Plus size={18} /> Add Day
+                  <Plus size={16} /> Add Day
                 </Button>
               </div>
               <div className="space-y-4">
                 {formData.days.map((day, dayIndex) => (
                   <Card key={dayIndex} className="p-4 bg-blue-50">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="font-bold text-lg">Day {day.dayNumber}</h3>
-                      <Button variant="ghost" size="sm" onClick={() => removeDay(dayIndex)}>
-                        <Trash2 size={18} />
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div>
+                        <Label className="text-sm">Day Title</Label>
+                        <Input value={day.title} onChange={(e) => updateDay(dayIndex, "title", e.target.value)} placeholder="e.g., Arrival in Paris" />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Date</Label>
+                        <Input type="date" value={day.date} onChange={(e) => updateDay(dayIndex, "date", e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Meals Included</Label>
+                        <Input value={day.mealsIncluded} onChange={(e) => updateDay(dayIndex, "mealsIncluded", e.target.value)} placeholder="e.g., B, L, D" />
+                      </div>
+                    </div>
+
+                    {/* Activities */}
+                    <div className="mb-3">
+                      <Label className="text-sm font-semibold mb-2 block">Activities</Label>
+                      <div className="space-y-2">
+                        {day.activities.map((activity, actIndex) => (
+                          <div key={actIndex} className="flex gap-2">
+                            <Input placeholder="Time (e.g., 09:00)" value={activity.time} onChange={(e) => updateActivity(dayIndex, actIndex, "time", e.target.value)} className="w-24" />
+                            <Input placeholder="Activity description" value={activity.description} onChange={(e) => updateActivity(dayIndex, actIndex, "description", e.target.value)} className="flex-1" />
+                            <Button variant="ghost" size="sm" onClick={() => removeActivity(dayIndex, actIndex)}>
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      <Button onClick={() => addActivity(dayIndex)} variant="outline" size="sm" className="mt-2 gap-1">
+                        <Plus size={14} /> Add Activity
                       </Button>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <Input placeholder="Day Title" value={day.title} onChange={(e) => updateDay(dayIndex, { title: e.target.value })} />
-                      <Input type="date" value={day.date} onChange={(e) => updateDay(dayIndex, { date: e.target.value })} />
-                      <Input placeholder="Meals Included" value={day.mealsIncluded} onChange={(e) => updateDay(dayIndex, { mealsIncluded: e.target.value })} />
-                      <Input placeholder="Accommodation" value={day.accommodation} onChange={(e) => updateDay(dayIndex, { accommodation: e.target.value })} />
+
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Label className="text-sm">Accommodation</Label>
+                        <Input value={day.accommodation} onChange={(e) => updateDay(dayIndex, "accommodation", e.target.value)} placeholder="Hotel name and details" />
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeDay(dayIndex)} className="mt-6">
+                        <Trash2 size={16} />
+                      </Button>
                     </div>
-                    <div className="space-y-2 mb-3">
-                      {day.activities.map((activity, activityIndex) => (
-                        <div key={activityIndex} className="flex gap-2">
-                          <Input placeholder="Time" value={activity.time} onChange={(e) => updateActivity(dayIndex, activityIndex, { time: e.target.value })} className="w-24" />
-                          <Input placeholder="Activity Description" value={activity.description} onChange={(e) => updateActivity(dayIndex, activityIndex, { description: e.target.value })} />
-                          <Button variant="ghost" size="sm" onClick={() => removeActivity(dayIndex, activityIndex)}>
-                            <Trash2 size={16} />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => addActivityToDay(dayIndex)} className="gap-2">
-                      <Plus size={16} /> Add Activity
-                    </Button>
                   </Card>
                 ))}
               </div>
             </Card>
 
-            {/* Inclusions and Exclusions */}
+            {/* Inclusions & Exclusions */}
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Inclusions and Exclusions</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-2 block">Included</Label>
-                  <div className="flex gap-2 mb-3">
+                  <Label className="mb-2 block">Inclusions</Label>
+                  <div className="space-y-2 mb-3">
                     <Input placeholder="Add inclusion" value={newInclusion} onChange={(e) => setNewInclusion(e.target.value)} />
-                    <Button onClick={addInclusion} size="sm">
-                      <Plus size={16} />
+                    <Button onClick={addInclusion} variant="outline" className="w-full gap-2">
+                      <Plus size={16} /> Add Inclusion
                     </Button>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {formData.inclusions.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center bg-green-50 p-2 rounded">
+                      <Card key={index} className="p-2 bg-green-50 flex justify-between items-center">
                         <span className="text-sm">{item}</span>
                         <Button variant="ghost" size="sm" onClick={() => removeInclusion(index)}>
                           <Trash2 size={14} />
                         </Button>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <Label className="mb-2 block">Not Included</Label>
-                  <div className="flex gap-2 mb-3">
+                  <Label className="mb-2 block">Exclusions</Label>
+                  <div className="space-y-2 mb-3">
                     <Input placeholder="Add exclusion" value={newExclusion} onChange={(e) => setNewExclusion(e.target.value)} />
-                    <Button onClick={addExclusion} size="sm">
-                      <Plus size={16} />
+                    <Button onClick={addExclusion} variant="outline" className="w-full gap-2">
+                      <Plus size={16} /> Add Exclusion
                     </Button>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {formData.exclusions.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center bg-red-50 p-2 rounded">
+                      <Card key={index} className="p-2 bg-red-50 flex justify-between items-center">
                         <span className="text-sm">{item}</span>
                         <Button variant="ghost" size="sm" onClick={() => removeExclusion(index)}>
                           <Trash2 size={14} />
                         </Button>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 </div>
@@ -388,26 +406,26 @@ export default function Home() {
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Emergency Contacts</h2>
               <div className="space-y-3 mb-4">
-                <div className="grid grid-cols-3 gap-2">
-                  <Input placeholder="Contact Name" value={newContact.contactName} onChange={(e) => setNewContact({ ...newContact, contactName: e.target.value })} />
-                  <Input placeholder="Phone" value={newContact.phone} onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })} />
-                  <Input placeholder="Email" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} />
-                </div>
+                <Input placeholder="Contact Name" value={newContact.contactName} onChange={(e) => setNewContact({ ...newContact, contactName: e.target.value })} />
+                <Input placeholder="Phone Number" value={newContact.phone} onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })} />
+                <Input placeholder="Email (optional)" value={newContact.email} onChange={(e) => setNewContact({ ...newContact, email: e.target.value })} />
                 <Button onClick={addContact} className="gap-2">
                   <Plus size={16} /> Add Contact
                 </Button>
               </div>
               <div className="space-y-2">
                 {formData.emergencyContacts.map((contact, index) => (
-                  <div key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded">
-                    <div className="text-sm">
-                      <div className="font-semibold">{contact.contactName}</div>
-                      <div className="text-gray-600">{contact.phone} {contact.email && `| ${contact.email}`}</div>
+                  <Card key={index} className="p-3 bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold">{contact.contactName}</h4>
+                        <p className="text-sm text-gray-600">{contact.phone} {contact.email && `| ${contact.email}`}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeContact(index)}>
+                        <Trash2 size={16} />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => removeContact(index)}>
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </Card>

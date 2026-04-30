@@ -49,3 +49,5 @@
 - [x] Fixed repeated click issue - button now works multiple times without page reload
 
 - [x] Fixed Terms and Conditions section - added validation feedback with toast notifications
+
+- [x] Fixed loading toast not disappearing after PDF generation - now properly dismisses the loading toast before showing success message
