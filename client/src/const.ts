@@ -19,3 +19,11 @@ export const getLoginUrl = () => {
 
   return url.toString();
 };
+
+// Static company details — this app is dedicated to Desi To Global Travel
+export const COMPANY = {
+  name: "Desi To Global Travel",
+  email: "contact@desitoglobaltravel.com",
+  phone: "+91-9650509356 | +91-9650435208",
+  website: "www.desitoglobaltravel.com",
+} as const;

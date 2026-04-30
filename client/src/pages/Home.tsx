@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Download, ImagePlus, X } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { getLoginUrl, COMPANY } from "@/const";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -48,14 +48,10 @@ export default function Home() {
   const generatePDFMutation = trpc.itinerary.generatePDF.useMutation();
 
   const [formData, setFormData] = useState({
-    companyName: "Desi To Global Travel",
     tourTitle: "European Grand Tour",
     destination: "Europe",
     clientName: "John Doe",
     bookingReference: "DTG-2024-001",
-    companyEmail: "contact@desitoglobaltravel.com",
-    companyPhone: "+91-9650509356 | +91-9650435208",
-    companyWebsite: "www.desitoglobaltravel.com",
     createdDate: new Date().toISOString().split("T")[0],
     startDate: "2024-06-01",
     endDate: "2024-06-15",
@@ -248,14 +244,14 @@ export default function Home() {
       }
 
       const result = await generatePDFMutation.mutateAsync({
-        companyName: formData.companyName,
+        companyName: COMPANY.name,
         tourTitle: formData.tourTitle,
         destination: formData.destination,
         clientName: formData.clientName,
         bookingReference: formData.bookingReference,
-        companyEmail: formData.companyEmail,
-        companyPhone: formData.companyPhone,
-        companyWebsite: formData.companyWebsite,
+        companyEmail: COMPANY.email,
+        companyPhone: COMPANY.phone,
+        companyWebsite: COMPANY.website,
         companyLogoUrl,
         createdDate: formData.createdDate,
         startDate: formData.startDate,
@@ -319,10 +315,6 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label className="mb-2">Company Name</Label>
-                  <Input value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} />
-                </div>
-                <div>
                   <Label className="mb-2">Tour Title</Label>
                   <Input value={formData.tourTitle} onChange={(e) => setFormData({ ...formData, tourTitle: e.target.value })} />
                 </div>
@@ -345,18 +337,6 @@ export default function Home() {
                 <div>
                   <Label className="mb-2">End Date</Label>
                   <Input type="date" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="mb-2">Company Email</Label>
-                  <Input value={formData.companyEmail} onChange={(e) => setFormData({ ...formData, companyEmail: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="mb-2">Company Phone</Label>
-                  <Input value={formData.companyPhone} onChange={(e) => setFormData({ ...formData, companyPhone: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="mb-2">Company Website</Label>
-                  <Input value={formData.companyWebsite} onChange={(e) => setFormData({ ...formData, companyWebsite: e.target.value })} />
                 </div>
               </div>
 
@@ -604,7 +584,13 @@ export default function Home() {
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-4">
               <div ref={previewRef}>
-                <ItineraryPreview {...formData} />
+                <ItineraryPreview
+                  {...formData}
+                  companyName={COMPANY.name}
+                  companyEmail={COMPANY.email}
+                  companyPhone={COMPANY.phone}
+                  companyWebsite={COMPANY.website}
+                />
               </div>
               <Button onClick={handleGeneratePDF} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 h-12 text-base">
                 <Download size={20} />
