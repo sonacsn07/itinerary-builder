@@ -16,7 +16,7 @@ function generateItineraryHTML(data: ItineraryFormData): string {
   let html = buildHTMLStart(data);
   html += daysHtml;
   html += buildHTMLMiddle(data, inclusionsHtml, exclusionsHtml, contactsHtml, customSectionsHtml, termsHtml);
-  html += buildHTMLEnd(data);
+  html += "</section></div></body></html>";
 
   return html;
 }
@@ -91,12 +91,7 @@ function buildHTMLMiddle(data: ItineraryFormData, inclusionsHtml: string, exclus
   return html;
 }
 
-function buildHTMLEnd(data: ItineraryFormData): string {
-  let html = "<footer><p><strong>" + escapeHtml(data.companyName) + "</strong> | Page <span class=\"page-number\"></span></p></footer></div>";
-  html += "<script>document.querySelector('.page-number').textContent = window.pageNumber || 1;</script>";
-  html += "</body></html>";
-  return html;
-}
+
 
 function renderDayBlock(day: any): string {
   const activitiesHtml = day.activities.map((activity: any) => `<p class="activity"><strong>${escapeHtml(activity.time)}</strong> ${escapeHtml(activity.description)}</p>`).join("");
