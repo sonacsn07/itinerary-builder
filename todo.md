@@ -47,3 +47,5 @@
 ## Bug Fixes
 - [x] Fixed PDF download button - now uses server-side HTML generation with browser print dialog
 - [x] Fixed repeated click issue - button now works multiple times without page reload
+
+- [x] Fixed Terms and Conditions section - added validation feedback with toast notifications

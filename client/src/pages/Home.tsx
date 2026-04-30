@@ -166,6 +166,9 @@ export default function Home() {
     if (newTerm.policyTitle.trim() && newTerm.policyContent.trim()) {
       setFormData({ ...formData, termsAndConditions: [...formData.termsAndConditions, newTerm] });
       setNewTerm({ policyTitle: "", policyContent: "" });
+      toast.success("Term added successfully!");
+    } else {
+      toast.error("Please fill in both policy title and content");
     }
   };
 
