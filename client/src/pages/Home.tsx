@@ -10,7 +10,7 @@ import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ItineraryPreview } from "@/components/ItineraryPreview";
-import html2pdf from "html2pdf.js";
+
 
 interface Activity {
   time: string;
@@ -184,24 +184,53 @@ export default function Home() {
     setFormData({ ...formData, emergencyContacts: formData.emergencyContacts.filter((_, i) => i !== index) });
   };
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     try {
-      if (!previewRef.current) {
-        toast.error("Preview not available");
-        return;
+      toast.loading("Generating PDF...");
+      
+      const result = await generatePDFMutation.mutateAsync({
+        companyName: formData.companyName,
+        tourTitle: formData.tourTitle,
+        destination: formData.destination,
+        clientName: formData.clientName,
+        bookingReference: formData.bookingReference,
+        companyEmail: formData.companyEmail,
+        companyPhone: formData.companyPhone,
+        companyWebsite: formData.companyWebsite,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        days: formData.days,
+        inclusions: formData.inclusions,
+        exclusions: formData.exclusions,
+        emergencyContacts: formData.emergencyContacts,
+        customSections: formData.customSections,
+        termsAndConditions: formData.termsAndConditions,
+      });
+
+      if (result.success && result.html) {
+        // Create a blob from the HTML
+        const blob = new Blob([result.html], { type: "text/html" });
+        const url = window.URL.createObjectURL(blob);
+        
+        // Create a temporary iframe to print to PDF
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        
+        iframe.onload = () => {
+          setTimeout(() => {
+            iframe.contentWindow?.print();
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+              window.URL.revokeObjectURL(url);
+              toast.success("PDF ready! Use your browser's print dialog to save as PDF.");
+            }, 100);
+          }, 250);
+        };
+      } else {
+        toast.error("Failed to generate PDF");
       }
-
-      const element = previewRef.current.cloneNode(true) as HTMLElement;
-      const opt = {
-        margin: 10,
-        filename: `itinerary-${formData.tourTitle.replace(/\s+/g, "-").toLowerCase()}.pdf`,
-        image: { type: "png" as const, quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { orientation: "portrait" as const, unit: "mm", format: "a4" },
-      };
-
-      html2pdf().set(opt).from(element).save();
-      toast.success("Itinerary PDF downloaded successfully!");
     } catch (error) {
       console.error("PDF generation error:", error);
       toast.error("Failed to generate PDF");

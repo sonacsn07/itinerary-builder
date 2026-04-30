@@ -37,9 +37,13 @@
 - [x] Test PDF generation with edge cases (long text, special characters, complex itineraries)
 - [x] Verify responsive design on mobile and desktop
 - [x] Core UI implementation complete with professional styling
-- [ ] Optional: Add animations and micro-interactions for enhanced UX
-- [ ] Optional: Accessibility audit and refinement
+- [ ] Future Enhancement: Add animations and micro-interactions for enhanced UX
+- [ ] Future Enhancement: Accessibility audit and refinement
 
 ## Deployment
 - [x] Create initial checkpoint
 - [x] Application ready for testing and review (checkpoint: fd039cef)
+
+## Bug Fixes
+- [x] Fixed PDF download button - now uses server-side HTML generation with browser print dialog
+- [x] Fixed repeated click issue - button now works multiple times without page reload
