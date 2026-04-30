@@ -57,3 +57,5 @@
 - [x] Removed buildHTMLEnd footer function from PDF generator - PDFs now have no footer
 
 - [x] Added footer to PDF with company name, website, email, and phone number
+
+- [x] Added CSS @page rules to hide browser headers and footers automatically when printing to PDF

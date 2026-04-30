@@ -63,6 +63,9 @@ function buildHTMLStart(data: ItineraryFormData): string {
   html += ".term-block p { font-size: 13px; line-height: 1.8; text-align: justify; }";
   html += "footer { border-top: 1px solid #AED6F1; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 11px; color: #7F8C8D; }";
   html += ".company-contact { font-size: 11px; margin-top: 10px; }";
+  html += "@page { margin: 0.5in; size: A4; }";
+  html += "@page { @bottom-left { content: none; } @bottom-right { content: none; } @top-left { content: none; } @top-right { content: none; } }";
+  html += "@media print { body { margin: 0; padding: 0; } }";
   html += "</style></head><body><div class=\"container\"><header>";
   html += "<div class=\"company-name\">" + escapeHtml(data.companyName) + "</div>";
   html += "<div class=\"page-title\">Travel Itinerary</div>";
