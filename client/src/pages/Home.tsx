@@ -346,6 +346,12 @@ export default function Home() {
               <div className="space-y-4">
                 {formData.days.map((day, dayIndex) => (
                   <Card key={dayIndex} className="p-4 bg-blue-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-semibold text-blue-800">Day {day.dayNumber}</h3>
+                      <Button variant="ghost" size="sm" onClick={() => removeDay(dayIndex)} className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-1">
+                        <Trash2 size={14} /> Delete Day
+                      </Button>
+                    </div>
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       <div>
                         <Label className="text-sm">Day Title</Label>
@@ -380,14 +386,9 @@ export default function Home() {
                       </Button>
                     </div>
 
-                    <div className="flex gap-2">
-                      <div className="flex-1">
-                        <Label className="text-sm">Accommodation</Label>
-                        <Input value={day.accommodation} onChange={(e) => updateDay(dayIndex, "accommodation", e.target.value)} placeholder="Hotel name and details" />
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => removeDay(dayIndex)} className="mt-6">
-                        <Trash2 size={16} />
-                      </Button>
+                    <div>
+                      <Label className="text-sm">Accommodation</Label>
+                      <Input value={day.accommodation} onChange={(e) => updateDay(dayIndex, "accommodation", e.target.value)} placeholder="Hotel name and details" />
                     </div>
 
                     {/* Day Image Upload */}
