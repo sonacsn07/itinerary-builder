@@ -1,4 +1,4 @@
-import { ItineraryFormData } from "../shared/types.js";
+import { ItineraryFormData } from "../shared/types";
 
 export async function generateItineraryPDF(data: ItineraryFormData): Promise<Buffer> {
   const html = generateItineraryHTML(data);

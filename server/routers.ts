@@ -1,10 +1,10 @@
-import { COOKIE_NAME } from "@shared/const.js";
-import { getSessionCookieOptions } from "./_core/cookies.js";
-import { systemRouter } from "./_core/systemRouter.js";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc.js";
+import { COOKIE_NAME } from "@shared/const";
+import { getSessionCookieOptions } from "./_core/cookies";
+import { systemRouter } from "./_core/systemRouter";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { generateItineraryPDF } from "./pdf-generator.js";
-import { ItineraryFormData } from "../shared/types.js";
+import { generateItineraryPDF } from "./pdf-generator";
+import { ItineraryFormData } from "../shared/types";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly

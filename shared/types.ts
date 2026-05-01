@@ -3,8 +3,8 @@
  * Import shared types from this single entry point.
  */
 
-export type * from "../drizzle/schema.js";
-export * from "./_core/errors.js";
+export type * from "../drizzle/schema";
+export * from "./_core/errors";
 
 // Itinerary Builder Types
 export interface ItineraryFormData {
